@@ -67,7 +67,7 @@ function validator.not_empty_string(str)
 end
 
 function validator.email(email_string)
-    return validator.not_empty_string(email_string) and email_string:match('([^@]+@[^@]+)') == email_string
+    return validator.not_empty_string(email_string) and email_string:match("[a-z0-9%.%%%+%-]+@[a-z0-9%.%%%+%-]+%.%w%w%w?%w?") == email_string
 end
 
 function validator.provider(provider)
