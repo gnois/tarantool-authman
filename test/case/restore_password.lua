@@ -1,5 +1,6 @@
 local exports = {}
 local tap = require('tap')
+local fiber = require('fiber')
 local response = require('authman.response')
 local error = require('authman.error')
 local validator = require('authman.validator')
@@ -147,6 +148,18 @@ function test_complete_restore_password_empty_token()
     test:is_deeply(got, expected, 'test_complete_restore_password_empty_token')
 end
 
+
+function test_complete_restore_passsword_expired_token()
+    local ok, token, id, session, got, expected
+    ok, token = auth.restore_password('test@test.ru')
+    fiber.sleep(config.session_lifetime)
+
+    got = {auth.complete_restore_password('test@test.ru', token, 'new_pwd'), }
+    expected = {response.error(error.WRONG_RESTORE_TOKEN), }
+    test:is_deeply(got, expected, 'test_complete_restore_password_expired_token')
+
+end
+
 exports.tests = {
     test_restore_password_success,
     test_complete_restore_password_success,
@@ -160,6 +173,7 @@ exports.tests = {
     test_complete_restore_password_wrong_token,
     test_complete_restore_password_auth_with_old_password,
     test_complete_restore_password_empty_token,
+	test_complete_restore_passsword_expired_token,
 }
 
 return exports
