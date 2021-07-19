@@ -17,7 +17,6 @@ local test = tap.test('auth_test')
 function exports.setup() end
 
 function exports.before()
-    db.truncate_spaces()
     local ok, user
     ok, user = auth.registration('test@test.ru')
     auth.complete_registration('test@test.ru', user.code, v.USER_PASSWORD)

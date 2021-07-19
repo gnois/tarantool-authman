@@ -15,10 +15,11 @@ local test = tap.test('registration_test')
 function exports.setup() end
 
 function exports.before()
-    db.truncate_spaces()
 end
 
-function exports.after() end
+function exports.after()
+    db.truncate_spaces()
+end
 
 function exports.teardown() end
 
