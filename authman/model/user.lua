@@ -6,7 +6,7 @@ local validator =  require('authman.validator')
 local utils = require('authman.utils.utils')
 
 -----
--- user (uuid, email, type, is_active, profile)
+-- user (uuid, email, type, profile)
 -----
 function user.model(config)
     local model = {}
@@ -18,7 +18,6 @@ function user.model(config)
     model.ID = 1
     model.EMAIL = 2
     model.TYPE = 3
-    model.IS_ACTIVE = 4
     model.PROFILE = 5
     model.REGISTRATION_TS = 6    -- date of auth.registration or auth.complete_registration
     model.SESSION_UPDATE_TS = 7  -- date of auth.auth, auth.social_auth or auth.check_auth if session was updated
@@ -38,7 +37,6 @@ function user.model(config)
         local user_data = {
             id = user_tuple[model.ID],
             email = user_tuple[model.EMAIL],
-            is_active = user_tuple[model.IS_ACTIVE],
             profile = user_tuple[model.PROFILE],
         }
         if data ~= nil then
@@ -88,7 +86,6 @@ function user.model(config)
             user_id,
             email,
             user_tuple[model.TYPE],
-            user_tuple[model.IS_ACTIVE],
             user_tuple[model.PROFILE],
             user_tuple[model.REGISTRATION_TS],
             user_tuple[model.SESSION_UPDATE_TS],
@@ -117,12 +114,8 @@ function user.model(config)
         local user_tuple = model.get_by_id(user_id)
         model.delete(user_id)
 
-        model.create_or_update()
+        model.create_or_update(user_tuple)
         return model.get_space():update(user_id, {{'=', model.ID, new_user_id}})
-    end
-
-    function model.generate_activation_code(user_id)
-        return digest.md5_hex(string.format('%s%s', config.activation_secret, user_id))
     end
 
     function model.update_session_ts(user_tuple)

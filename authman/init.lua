@@ -11,6 +11,7 @@ function auth.api(config)
 
     config = validator.config(config)
     local user = require('authman.model.user').model(config)
+    local activation_token = require('authman.model.activation_token').model(config)
     local password = require('authman.model.password').model(config)
     local password_token = require('authman.model.password_token').model(config)
     local social = require('authman.model.social').model(config)
@@ -39,10 +40,10 @@ function auth.api(config)
 
         local user_tuple = user.get_by_email(email, user.COMMON_TYPE)
         if user_tuple ~= nil then
-            if user_tuple[user.IS_ACTIVE] and user_tuple[user.TYPE] == user.COMMON_TYPE then
+            if user_tuple[user.TYPE] == user.COMMON_TYPE and not activation_token.get_by_user_id(user_tuple[USER_ID]) then
                 return response.error(error.USER_ALREADY_EXISTS)
             else
-                local code = user.generate_activation_code(user_tuple[user.ID])
+                local code = activation_token.generate(user_tuple[user.ID])
                 return response.ok(user.serialize(user_tuple, {code=code}))
             end
         end
@@ -50,7 +51,6 @@ function auth.api(config)
         user_tuple = {
             [user.EMAIL] = email,
             [user.TYPE] = user.COMMON_TYPE,
-            [user.IS_ACTIVE] = false,
         }
         if validator.not_empty_string(user_id) then
             user_tuple[user.ID] = user_id
@@ -65,7 +65,7 @@ function auth.api(config)
                 [password.HASH] = password.hash(raw_password, user_id)
             })
         end
-        local code = user.generate_activation_code(user_id)
+        local code = activation_token.generate(user_id)
         return response.ok(user.serialize(user_tuple, {code=code}))
     end
 
@@ -81,13 +81,12 @@ function auth.api(config)
             return response.error(error.USER_NOT_FOUND)
         end
 
-        if user_tuple[user.IS_ACTIVE] then
-            return response.error(error.USER_ALREADY_ACTIVE)
+        local user_id = user_tuple[user.ID]
+        if not activation_token.get_by_user_id(user_id) then
+            return response.error(error.USER_ALREADY_VERIFIED)
         end
 
-        local user_id = user_tuple[user.ID]
-        local correct_code = user.generate_activation_code(user_id)
-        if code ~= correct_code then
+        if activation_token.is_valid(code, user_id) then
             return response.error(error.WRONG_ACTIVATION_CODE)
         end
 
@@ -109,7 +108,6 @@ function auth.api(config)
 
         user_tuple = user.update({
             [user.ID] = user_id,
-            [user.IS_ACTIVE] = true,
             [user.REGISTRATION_TS] = utils.now(),
         })
 
@@ -126,8 +124,8 @@ function auth.api(config)
             return response.error(error.USER_NOT_FOUND)
         end
 
-        if not user_tuple[user.IS_ACTIVE] then
-            return response.error(error.USER_NOT_ACTIVE)
+        if activation_token.get_by_user_id(user_id) then
+            return response.error(error.USER_NOT_VERIFIED)
         end
 
         user_tuple = user.update({
@@ -165,6 +163,7 @@ function auth.api(config)
         end
 
         user.delete(user_id)
+        activation_token.delete(user_id)
         password.delete_by_user_id(user_id)
         social.delete_by_user_id(user_id)
         password_token.delete(user_id)
@@ -181,7 +180,7 @@ function auth.api(config)
             return response.error(error.USER_NOT_FOUND)
         end
 
-        if not user_tuple[user.IS_ACTIVE] then
+        if not password.get_by_user_id(user_tuple[user.ID]) then
             return response.error(error.USER_NOT_ACTIVE)
         end
 
@@ -216,10 +215,9 @@ function auth.api(config)
             return response.error(error.USER_NOT_FOUND)
         end
 
-        if not user_tuple[user.IS_ACTIVE] then
+        if not password.get_by_user_id(user_tuple[user.ID]) then
             return response.error(error.USER_NOT_ACTIVE)
         end
-
 
         local session_data = session.decode(encoded_session_data)
         local new_session
@@ -305,9 +303,11 @@ function auth.api(config)
             return response.error(error.USER_NOT_FOUND)
         end
 
-        if not user_tuple[user.IS_ACTIVE] then
+        -- allow change password even if email not verified
+        if not password.get_by_user_id(user_tuple[user.ID]) then
             return response.error(error.USER_NOT_ACTIVE)
         end
+
         return response.ok(password_token.generate(user_tuple[user.ID]))
     end
 
@@ -324,7 +324,7 @@ function auth.api(config)
             return response.error(error.USER_NOT_FOUND)
         end
 
-        if not user_tuple[user.IS_ACTIVE] then
+        if not password.get_by_user_id(user_tuple[user.ID]) then
             return response.error(error.USER_NOT_ACTIVE)
         end
 
@@ -347,6 +347,7 @@ function auth.api(config)
                 [user.TYPE] = user.COMMON_TYPE,
             })
 
+            activation_token.delete(user_id)
             password_token.delete(user_id)
 
             return response.ok(user.serialize(user_tuple))
@@ -383,7 +384,7 @@ function auth.api(config)
 
         local now = utils.now()
         user_tuple[user.EMAIL] = utils.lower(user_tuple[user.EMAIL])
-        user_tuple[user.IS_ACTIVE] = true
+        user_tuple[user.IS_VERIFIED] = true
         user_tuple[user.TYPE] = user.SOCIAL_TYPE
         user_tuple[user.SESSION_UPDATE_TS] = now
 

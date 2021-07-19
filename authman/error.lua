@@ -9,7 +9,7 @@ error.WRONG_ACTIVATION_CODE = '6'
 error.WRONG_SESSION_SIGN = '7'
 error.NOT_AUTHENTICATED = '8'
 error.WRONG_RESTORE_TOKEN = '9'
-error.USER_ALREADY_ACTIVE = '10'
+error.USER_ALREADY_VERIFIED = '10'
 error.WRONG_AUTH_CODE = '11'
 error.IMPROPERLY_CONFIGURED = '12'
 error.WRONG_PROVIDER = '13'
@@ -23,18 +23,19 @@ error.OAUTH_CODE_NOT_FOUND = '20'
 error.OAUTH_ACCESS_TOKEN_NOT_FOUND = '21'
 error.PASSWORD_ALREADY_EXISTS = '22'
 error.PASSWORD_REQUIRED = '23'
+error.USER_NOT_VERIFIED = '24'
 
 error.CODES = {
     [error.USER_NOT_FOUND] = 'User not found',
     [error.USER_ALREADY_EXISTS] = 'User already exists',
     [error.INVALID_PARAMS] = 'Invalid params',
-    [error.USER_NOT_ACTIVE] = 'User not activated',
+    [error.USER_NOT_ACTIVE] = 'User not active',
     [error.WRONG_PASSWORD] = 'Wrong password',
     [error.WRONG_ACTIVATION_CODE] = 'Wrong activation code',
     [error.WRONG_SESSION_SIGN] = 'Wrong session sign',
-    [error.NOT_AUTHENTICATED] = 'User is not authenticated',
+    [error.NOT_AUTHENTICATED] = 'User not authenticated',
     [error.WRONG_RESTORE_TOKEN] = 'Wrong restore token',
-    [error.USER_ALREADY_ACTIVE] = 'User already active',
+    [error.USER_ALREADY_VERIFIED] = 'User already verified',
     [error.WRONG_AUTH_CODE] = 'Wrong auth code',
     [error.IMPROPERLY_CONFIGURED] = 'Wrong config passed',
     [error.WRONG_PROVIDER] = 'Wrong social provider',
@@ -46,8 +47,9 @@ error.CODES = {
     [error.OAUTH_MAX_APPS_REACHED] = 'Max oauth apps limit reached',
     [error.OAUTH_CODE_NOT_FOUND] = 'OAUTH authorization code not found',
     [error.OAUTH_ACCESS_TOKEN_NOT_FOUND] = 'OAUTH access token not found',
-	[error.PASSWORD_ALREADY_EXISTS] = 'Password already exists',
-	[error.PASSWORD_REQUIRED] = 'Password required'
+    [error.PASSWORD_ALREADY_EXISTS] = 'Password already exists',
+    [error.PASSWORD_REQUIRED] = 'Password required',
+    [error.USER_NOT_VERIFIED] = 'User not verified',
 }
 
 return error
