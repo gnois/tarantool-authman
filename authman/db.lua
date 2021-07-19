@@ -37,12 +37,6 @@ function db.configurate(config)
         })
         password_space:create_index(password.PRIMARY_INDEX, {
             type = 'hash',
-            parts = {password.ID, 'string'},
-            if_not_exists = true
-        })
-        password_space:create_index(password.USER_ID_INDEX, {
-            type = 'tree',
-            unique = true,
             parts = {password.USER_ID, 'string'},
             if_not_exists = true
         })
