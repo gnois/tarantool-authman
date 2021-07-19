@@ -4,7 +4,7 @@ return {
     activation_secret = 'ehbgrTUHIJ7689fyvg',
     session_secret = 'aswfWERVefver324efv',
     restore_secret = 'ybhinjTRCFYVGUHB5678jh',
-	restore_lifetime = 60 * 60 * 24 * 7,
+    restore_lifetime = 60 * 60 * 24 * 7,
     session_lifetime = 60 * 60 * 24 * 14,
     session_update_timedelta = 60 * 60 * 24 * 7,
     social_check_time = 60 * 60 * 24,
