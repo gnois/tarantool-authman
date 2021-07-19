@@ -117,6 +117,46 @@ function test_complete_registration_empty_code()
     test:is_deeply(got, expected, 'test_complete_registration_empty_code')
 end
 
+
+function test_complete_registration_password_success()
+    local ok, user
+    ok, user = auth.registration('test@test.ru', v.USER_PASSWORD)
+    ok, user = auth.complete_registration('test@test.ru', user.code)
+
+    user['id'] = nil -- remove random id
+    test:is(ok, true, 'test_complete_registration_password_succes activated success')
+    test:is_deeply(user, {email = 'test@test.ru', is_active = true}, 'test_complete_registration_password_succes user returned')
+end
+
+
+function test_registration_user_not_active_alternate_password_success()
+    local ok, user
+    ok, user = auth.registration('test@test.ru', v.USER_PASSWORD)
+    ok, user = auth.registration('test_exists@test.ru')
+    test:is(ok, true, 'test_registartion_user_not_active_success user created')
+    test:isstring(user.code, 'test_registartion_user_not_active_success code returned')
+    test:is(user.email, 'test_exists@test.ru', 'test_registartion_user_not_active_success email returned')
+end
+
+
+function test_complete_registration_no_password_fails()
+    local ok, user, got, expected
+    ok, user = auth.registration('test@test.ru')
+    got = {auth.complete_registration('test@test.ru', user.code)}
+    expected = {response.error(error.PASSWORD_REQUIRED) }
+    test:is_deeply(got, expected, 'test_complete_registration_no_password_fails')
+end
+
+
+function test_complete_registration_repeated_password_fails()
+    local ok, user, got, expected
+    ok, user = auth.registration('test@test.ru', v.USER_PASSWORD)
+    got = {auth.complete_registration('test@test.ru', user.code, v.USER_PASSWORD)}
+    expected = {response.error(error.PASSWORD_ALREADY_EXISTS) }
+    test:is_deeply(got, expected, 'test_complete_registration_repeated_password_fails')
+end
+
+
 exports.tests = {
     test_registration_succes,
     test_registartion_user_not_active_success,
@@ -129,6 +169,11 @@ exports.tests = {
     test_complete_registration_user_already_active,
     test_complete_registration_user_not_found,
     test_complete_registration_empty_code,
+
+	test_complete_registration_password_success,
+	test_registration_user_not_active_alternate_password_success,
+	test_complete_registration_no_password_fails,
+	test_complete_registration_repeated_password_fails,
 }
 
 return exports

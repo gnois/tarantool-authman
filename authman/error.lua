@@ -21,6 +21,8 @@ error.OAUTH_CONSUMER_NOT_FOUND = '18'
 error.OAUTH_MAX_APPS_REACHED = '19'
 error.OAUTH_CODE_NOT_FOUND = '20'
 error.OAUTH_ACCESS_TOKEN_NOT_FOUND = '21'
+error.PASSWORD_ALREADY_EXISTS = '22'
+error.PASSWORD_REQUIRED = '23'
 
 error.CODES = {
     [error.USER_NOT_FOUND] = 'User not found',
@@ -44,6 +46,8 @@ error.CODES = {
     [error.OAUTH_MAX_APPS_REACHED] = 'Max oauth apps limit reached',
     [error.OAUTH_CODE_NOT_FOUND] = 'OAUTH authorization code not found',
     [error.OAUTH_ACCESS_TOKEN_NOT_FOUND] = 'OAUTH access token not found',
+	[error.PASSWORD_ALREADY_EXISTS] = 'Password already exists',
+	[error.PASSWORD_REQUIRED] = 'Password required'
 }
 
 return error

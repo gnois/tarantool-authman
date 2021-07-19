@@ -26,11 +26,15 @@ function auth.api(config)
     -----------------
     -- API methods --
     -----------------
-    function api.registration(email, user_id)
+    function api.registration(email, raw_password, user_id)
         email = utils.lower(email)
 
         if not validator.email(email) then
             return response.error(error.INVALID_PARAMS)
+        end
+
+        if raw_password and not password.strong_enough(raw_password) then
+            return response.error(error.WEAK_PASSWORD)
         end
 
         local user_tuple = user.get_by_email(email, user.COMMON_TYPE)
@@ -53,8 +57,15 @@ function auth.api(config)
         end
 
         user_tuple = user.create(user_tuple)
+        user_id = user_tuple[user.ID]
 
-        local code = user.generate_activation_code(user_tuple[user.ID])
+        if raw_password then
+            password.create({
+                [password.USER_ID] = user_id,
+                [password.HASH] = password.hash(raw_password, user_id)
+            })
+        end
+        local code = user.generate_activation_code(user_id)
         return response.ok(user.serialize(user_tuple, {code=code}))
     end
 
@@ -63,10 +74,6 @@ function auth.api(config)
 
         if not (validator.email(email) and validator.not_empty_string(code)) then
             return response.error(error.INVALID_PARAMS)
-        end
-
-        if not password.strong_enough(raw_password) then
-            return response.error(error.WEAK_PASSWORD)
         end
 
         local user_tuple = user.get_by_email(email, user.COMMON_TYPE)
@@ -84,10 +91,21 @@ function auth.api(config)
             return response.error(error.WRONG_ACTIVATION_CODE)
         end
 
-        password.create_or_update({
-            [password.USER_ID] = user_id,
-            [password.HASH] = password.hash(raw_password, user_id)
-        })
+        local has_password = password.get_by_user_id(user_id)
+        if raw_password then
+            if has_password then
+                return response.error(error.PASSWORD_ALREADY_EXISTS)
+            end
+            if not password.strong_enough(raw_password) then
+                return response.error(error.WEAK_PASSWORD)
+            end
+            password.create_or_update({
+                [password.USER_ID] = user_id,
+                [password.HASH] = password.hash(raw_password, user_id)
+            })
+        elseif not has_password then
+            return response.error(error.PASSWORD_REQUIRED)
+        end
 
         user_tuple = user.update({
             [user.ID] = user_id,
