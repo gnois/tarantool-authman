@@ -15,6 +15,7 @@ function password_token.model(config)
 
     model.USER_ID = 1
     model.CODE = 2
+	model.EXPIRY = 3
 
     function model.get_space()
         return box.space[model.SPACE_NAME]
@@ -30,9 +31,14 @@ function password_token.model(config)
         end
     end
 
+	local function get_expiration_time()
+        return os.time() + config.restore_lifetime
+    end
+
     function model.generate(user_id)
         local token = digest.md5_hex(user_id .. os.time() .. config.restore_secret)
-        model.get_space():upsert({user_id, token}, {{'=', 2, token}})
+		local expiry = get_expiration_time()
+        model.get_space():upsert({user_id, token, expiry}, {{'=', 2, token}, {'=', 3, expiry}})
         return token
     end
 
@@ -41,8 +47,10 @@ function password_token.model(config)
         if token_tuple == nil then
             return false
         end
-        local token = token_tuple[2]
-        if token ~= user_token then
+
+        if token_tuple[2] ~= user_token then
+            return false
+        elseif token_tuple[3] <= os.time() then
             return false
         else
             return true
