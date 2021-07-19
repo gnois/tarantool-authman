@@ -1,7 +1,6 @@
 local password = {}
 
 local digest = require('digest')
-local uuid = require('uuid')
 local validator = require('authman.validator')
 local utils = require('authman.utils.utils')
 
@@ -52,18 +51,12 @@ function password.model(config)
     model.SPACE_NAME = config.spaces.password.name
 
     model.PRIMARY_INDEX = 'primary'
-    model.USER_ID_INDEX = 'user'
 
-    model.ID = 1
-    model.USER_ID = 2
-    model.HASH = 3
+    model.USER_ID = 1
+    model.HASH = 2
 
     function model.get_space()
         return box.space[model.SPACE_NAME]
-    end
-
-    function model.get_by_id(id)
-        return model.get_space():get(id)
     end
 
     function model.get_by_user_id(user_id)
@@ -95,17 +88,16 @@ function password.model(config)
     function model.create(password_tuple)
         local id = uuid.str()
         return model.get_space():insert({
-            id,
             password_tuple[model.USER_ID],
             password_tuple[model.HASH],
         })
     end
 
     function model.update(password_tuple)
-        local social_id, fields
-        social_id = password_tuple[model.ID]
+        local user_id, fields
+        user_id = password_tuple[model.USER_ID]
         fields = utils.format_update(password_tuple)
-        return model.get_space():update(social_id, fields)
+        return model.get_space():update(user_id, fields)
     end
 
     function model.create_or_update(password_tuple)
@@ -114,7 +106,6 @@ function password.model(config)
         if exists_password_tuple == nil then
             return model.create(password_tuple)
         else
-            password_tuple[model.ID] = exists_password_tuple[model.ID]
             return model.update(password_tuple)
         end
     end
