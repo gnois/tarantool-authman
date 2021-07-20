@@ -60,7 +60,7 @@ function auth.api(config)
         user_id = user_tuple[user.ID]
 
         if raw_password then
-            password.create({
+            password.create_or_update({
                 [password.USER_ID] = user_id,
                 [password.HASH] = password.hash(raw_password, user_id)
             })
@@ -92,18 +92,16 @@ function auth.api(config)
 
         local has_password = password.get_by_user_id(user_id)
         if raw_password then
-            if has_password then
-                return response.error(error.PASSWORD_ALREADY_EXISTS)
-            end
+            assert(not has_password, 'Password already exists')
             if not password.strong_enough(raw_password) then
                 return response.error(error.WEAK_PASSWORD)
             end
-            password.create_or_update({
+            password.create({
                 [password.USER_ID] = user_id,
                 [password.HASH] = password.hash(raw_password, user_id)
             })
-        elseif not has_password then
-            return response.error(error.PASSWORD_REQUIRED)
+        else
+            assert(has_password, 'Password required')
         end
 
         user_tuple = user.update({
@@ -324,10 +322,6 @@ function auth.api(config)
             return response.error(error.USER_NOT_FOUND)
         end
 
-        if not password.get_by_user_id(user_tuple[user.ID]) then
-            return response.error(error.USER_NOT_ACTIVE)
-        end
-
         if not password.strong_enough(raw_password) then
             return response.error(error.WEAK_PASSWORD)
         end
@@ -335,7 +329,7 @@ function auth.api(config)
         local user_id = user_tuple[user.ID]
         if password_token.is_valid(token, user_id) then
 
-            password.create_or_update({
+            password.update({
                 [password.USER_ID] = user_id,
                 [password.HASH] = password.hash(raw_password, user_id)
             })
@@ -347,8 +341,8 @@ function auth.api(config)
                 [user.TYPE] = user.COMMON_TYPE,
             })
 
-            activation_token.delete(user_id)
             password_token.delete(user_id)
+            activation_token.delete(user_id)
 
             return response.ok(user.serialize(user_tuple))
         else

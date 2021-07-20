@@ -93,14 +93,14 @@ function test_complete_registration_weak_password()
     test:is_deeply(got, expected, 'test_complete_registration_weak_password 3')
 end
 
-function test_complete_registration_user_already_active()
+function test_complete_registration_user_already_verified()
     local ok, user, got, expected, user, code
     ok, user = auth.registration('test@test.ru')
     code = user.code
     ok, user = auth.complete_registration('test@test.ru', code, v.USER_PASSWORD)
     got = {auth.complete_registration('test@test.ru', code, v.USER_PASSWORD), }
-    expected = {response.error(error.USER_ALREADY_ACTIVE), }
-    test:is_deeply(got, expected, 'test_complete_registration_user_already_active')
+    expected = {response.error(error.USER_ALREADY_VERIFIED), }
+    test:is_deeply(got, expected, 'test_complete_registration_user_already_verified')
 end
 
 function test_complete_registration_user_not_found()
@@ -133,28 +133,11 @@ end
 function test_registration_user_not_active_alternate_password_success()
     local ok, user
     ok, user = auth.registration('test@test.ru', v.USER_PASSWORD)
+    -- should not allow in app
     ok, user = auth.registration('test_exists@test.ru')
     test:is(ok, true, 'test_registartion_user_not_active_success user created')
     test:isstring(user.code, 'test_registartion_user_not_active_success code returned')
     test:is(user.email, 'test_exists@test.ru', 'test_registartion_user_not_active_success email returned')
-end
-
-
-function test_complete_registration_no_password_fails()
-    local ok, user, got, expected
-    ok, user = auth.registration('test@test.ru')
-    got = {auth.complete_registration('test@test.ru', user.code)}
-    expected = {response.error(error.PASSWORD_REQUIRED) }
-    test:is_deeply(got, expected, 'test_complete_registration_no_password_fails')
-end
-
-
-function test_complete_registration_repeated_password_fails()
-    local ok, user, got, expected
-    ok, user = auth.registration('test@test.ru', v.USER_PASSWORD)
-    got = {auth.complete_registration('test@test.ru', user.code, v.USER_PASSWORD)}
-    expected = {response.error(error.PASSWORD_ALREADY_EXISTS) }
-    test:is_deeply(got, expected, 'test_complete_registration_repeated_password_fails')
 end
 
 
@@ -171,10 +154,8 @@ exports.tests = {
     test_complete_registration_user_not_found,
     test_complete_registration_empty_code,
 
-	test_complete_registration_password_success,
-	test_registration_user_not_active_alternate_password_success,
-	test_complete_registration_no_password_fails,
-	test_complete_registration_repeated_password_fails,
+    test_complete_registration_password_success,
+    test_registration_user_not_active_alternate_password_success,
 }
 
 return exports

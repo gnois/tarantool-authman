@@ -21,6 +21,7 @@ function exports.before()
     ok, user = auth.registration('test@test.ru')
     auth.complete_registration('test@test.ru', user.code, v.USER_PASSWORD)
     ok, user = auth.registration('not_active@test.ru')
+    ok, user = auth.registration('not_verified@test.ru', v.USER_PASSWORD)
 end
 
 function exports.after()
@@ -97,17 +98,22 @@ function test_check_auth_user_not_found()
 end
 
 function test_check_auth_user_not_active()
-    local ok, user, id, session, got, expected
-    ok, user = auth.auth('test@test.ru', v.USER_PASSWORD)
-    id = user['id']
-    session = user['session']
-
-    user_space:update(id, {{'=', 4, false}})
-
-    got = {auth.check_auth(session), }
+    local got, expected
+    got = {auth.auth('not_active@test.ru', v.USER_PASSWORD), }
     expected = {response.error(error.USER_NOT_ACTIVE), }
     test:is_deeply(got, expected, 'test_check_auth_user_not_active')
 end
+
+
+function test_check_auth_user_not_verified_login()
+    local ok, user, id, session, got, expected
+    ok, user = auth.auth('not_verified@test.ru', v.USER_PASSWORD)
+    id = user['id']
+    session = user['session']
+    ok, user = auth.check_auth(session)
+    test:is(ok, true, 'test_check_auth_user_not_verified_login success')
+end
+
 
 function test_check_auth_empty_session()
     local ok, user, got, expected
