@@ -33,7 +33,7 @@ function test_set_profile_success()
     ok, user = auth.set_profile(user['id'], user_profile)
 
     user['id'] = nil
-    expected = {email = 'test@test.ru', is_active = true, profile=user_profile}
+    expected = {email = 'test@test.ru', profile=user_profile}
     test:is(ok, true, 'test_set_profile_success user returned')
     test:is_deeply(user, expected, 'test_set_profile_success profile set')
 end
@@ -63,7 +63,7 @@ function test_set_profile_user_not_verified()
     user_profile = {last_name='test_last', first_name='test_first' }
 
     got = {auth.set_profile(id, user_profile), }
-    expected = {response.error(error.USER_NOT_VERIFIED, }
+    expected = {response.error(error.USER_NOT_VERIFIED), }
     test:is_deeply(got, expected, 'test_set_profile_user_not_verified')
 end
 
@@ -77,7 +77,7 @@ function test_get_profile_success()
     ok, user = auth.get_profile(user['id'])
 
     user['id'] = nil
-    expected = {email = 'test@test.ru', is_active = true, profile=user_profile}
+    expected = {email = 'test@test.ru', profile=user_profile}
     test:is(ok, true, 'test_get_profile_success user returned')
     test:is_deeply(user, expected, 'test_get_profile_success profile')
 end
@@ -107,7 +107,7 @@ function test_delete_user_success()
     ok, user = auth.delete_user(user['id'])
     id = user['id']
     user['id'] = nil
-    expected = {email = 'test@test.ru', is_active = true}
+    expected = {email = 'test@test.ru'}
     test:is(ok, true, 'test_delete_user_success user deleted')
     test:is_deeply(user, expected, 'test_delete_user_success profile returned')
 
@@ -139,7 +139,7 @@ exports.tests = {
 
     test_set_profile_invalid_id,
     test_set_profile_user_not_found,
-    test_set_profile_user_not_active,
+    test_set_profile_user_not_verified,
     test_get_profile_invalid_id,
     test_get_profile_user_not_found,
     test_delete_user_invalid_id,
