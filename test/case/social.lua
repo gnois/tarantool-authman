@@ -50,7 +50,6 @@ function test_social_auth_success()
 
     expected = {
         email = v.USER_EMAIL,
-        is_active = true,
         social = {
             provider = 'vk',
             social_id = v.SOCIAL_ID
@@ -75,7 +74,6 @@ function test_social_auth_no_email_success()
 
     expected = {
         email = '',
-        is_active = true,
         social = {
             provider = 'vk',
             social_id = v.SOCIAL_ID
@@ -100,7 +98,6 @@ function test_social_auth_no_profile_success()
 
     expected = {
         email = v.USER_EMAIL,
-        is_active = true,
         social = {
             provider = 'vk',
             social_id = v.SOCIAL_ID
@@ -125,7 +122,6 @@ function test_check_auth_social_success()
 
     expected = {
         email = v.USER_EMAIL,
-        is_active = true,
         social = {
             provider = 'vk',
             social_id = v.SOCIAL_ID

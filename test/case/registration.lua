@@ -44,10 +44,9 @@ function test_complete_registration_succes()
     local ok, user
     ok, user = auth.registration('test@test.ru')
     ok, user = auth.complete_registration('test@test.ru', user.code, v.USER_PASSWORD)
-
     user['id'] = nil -- remove random id
     test:is(ok, true, 'test_complete_registration_succes activated success')
-    test:is_deeply(user, {email = 'test@test.ru', is_active = true}, 'test_complete_registration_succes user returned')
+    test:is_deeply(user, {email = 'test@test.ru'}, 'test_complete_registration_succes user returned')
 end
 
 function test_registration_invalid_email()
@@ -126,7 +125,7 @@ function test_complete_registration_password_success()
 
     user['id'] = nil -- remove random id
     test:is(ok, true, 'test_complete_registration_password_succes activated success')
-    test:is_deeply(user, {email = 'test@test.ru', is_active = true}, 'test_complete_registration_password_succes user returned')
+    test:is_deeply(user, {email = 'test@test.ru'}, 'test_complete_registration_password_succes user returned')
 end
 
 
@@ -150,7 +149,7 @@ exports.tests = {
     test_registration_user_already_active,
     test_complete_registration_wrong_code,
     test_complete_registration_weak_password,
-    test_complete_registration_user_already_active,
+    test_complete_registration_user_already_verified,
     test_complete_registration_user_not_found,
     test_complete_registration_empty_code,
 

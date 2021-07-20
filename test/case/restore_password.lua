@@ -45,7 +45,7 @@ function test_complete_restore_password_success()
     ok, user = auth.complete_restore_password('test@test.ru', token, 'new_pwd')
     nok, _ = auth.check_auth(session)
     user['id'] = nil
-    expected = {email = 'test@test.ru', is_active = true}
+    expected = {email = 'test@test.ru'}
     test:is(ok, true, 'test_complete_restore_password_success password changed')
     test:is(nok, false, 'test_complete_restore_password_success session dropped')
     test:is_deeply(user, expected, 'test_complete_restore_password_success user returned')
@@ -59,7 +59,7 @@ function test_complete_restore_password_and_auth_success()
     session = user['session']
     user['id'] = nil
     user['session'] = nil
-    expected = {email = 'test@test.ru', is_active = true}
+    expected = {email = 'test@test.ru'}
     test:is(ok, true, 'test_complete_restore_password_and_auth_success user logged in')
     test:isstring(session, 'test_complete_restore_password_and_auth_success session returned')
     test:is_deeply(user, expected, 'test_complete_restore_password_and_auth_success user returned')
@@ -109,6 +109,8 @@ function test_complete_restore_passsword_weak()
     test:is_deeply(got, expected, 'test_complete_restore_passsword_weak 3')
 end
 
+--[[  Flow will not happen
+
 function test_complete_restore_password_user_not_active()
     local ok, token, id, session, got, expected
     ok, token = auth.restore_password('test@test.ru')
@@ -121,6 +123,7 @@ function test_complete_restore_password_user_not_active()
     expected = {response.error(error.USER_NOT_ACTIVE), }
     test:is_deeply(got, expected, 'test_complete_restore_password_user_not_active')
 end
+]]
 
 function test_complete_restore_password_wrong_token()
     local ok, token, id, session, got, expected
@@ -169,11 +172,11 @@ exports.tests = {
     test_restore_password_user_not_active,
     test_complete_restore_password_user_not_found,
     test_complete_restore_passsword_weak,
-    test_complete_restore_password_user_not_active,
+    -- test_complete_restore_password_user_not_active,
     test_complete_restore_password_wrong_token,
     test_complete_restore_password_auth_with_old_password,
     test_complete_restore_password_empty_token,
-	test_complete_restore_passsword_expired_token,
+    test_complete_restore_passsword_expired_token,
 }
 
 return exports
