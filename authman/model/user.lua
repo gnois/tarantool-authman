@@ -18,9 +18,9 @@ function user.model(config)
     model.ID = 1
     model.EMAIL = 2
     model.TYPE = 3
-    model.PROFILE = 5
-    model.REGISTRATION_TS = 6    -- date of auth.registration or auth.complete_registration
-    model.SESSION_UPDATE_TS = 7  -- date of auth.auth, auth.social_auth or auth.check_auth if session was updated
+    model.PROFILE = 4
+    model.REGISTRATION_TS = 5    -- date of auth.registration or auth.complete_registration
+    model.SESSION_UPDATE_TS = 6  -- date of auth.auth, auth.social_auth or auth.check_auth if session was updated
 
     model.PROFILE_FIRST_NAME = 'first_name'
     model.PROFILE_LAST_NAME = 'last_name'
