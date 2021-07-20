@@ -62,13 +62,13 @@ function password.model(config)
     function model.get_by_user_id(user_id)
         if validator.not_empty_string(user_id) then
             -- TODO create index and migrations
-            return model.get_space().index[model.USER_ID_INDEX]:select({user_id})[1]
+            return model.get_space():get(user_id)
         end
     end
 
     function model.delete_by_user_id(user_id)
         if validator.not_empty_string(user_id) then
-            return model.get_space().index[model.USER_ID_INDEX]:delete({user_id})
+            return model.get_space():delete({user_id})
         end
     end
 
@@ -86,7 +86,6 @@ function password.model(config)
     end
 
     function model.create(password_tuple)
-        local id = uuid.str()
         return model.get_space():insert({
             password_tuple[model.USER_ID],
             password_tuple[model.HASH],
