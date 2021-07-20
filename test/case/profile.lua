@@ -56,18 +56,15 @@ function test_set_profile_user_not_found()
     test:is_deeply(got, expected, 'test_set_user_not_found')
 end
 
-function test_set_profile_user_not_active()
+function test_set_profile_user_not_verified()
     local got, expected, user_profile, ok, code, user, id
-    ok, user = auth.registration('test@test.ru')
-    ok, user = auth.complete_registration('test@test.ru', user.code, v.USER_PASSWORD)
+    ok, user = auth.registration('test@test.ru', v.USER_PASSWORD)
     id = user['id']
-
-    user_space:update(id, {{'=', 4, false}})
     user_profile = {last_name='test_last', first_name='test_first' }
 
     got = {auth.set_profile(id, user_profile), }
-    expected = {response.error(error.USER_NOT_ACTIVE), }
-    test:is_deeply(got, expected, 'test_set_profile_user_not_active')
+    expected = {response.error(error.USER_NOT_VERIFIED, }
+    test:is_deeply(got, expected, 'test_set_profile_user_not_verified')
 end
 
 function test_get_profile_success()
