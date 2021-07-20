@@ -48,6 +48,7 @@ local config_default_secrets = {
 local config_default_space_names = {
     password = 'auth_password_credential',
     password_token = 'auth_password_token',
+    activation_token = 'auth_activation_token',
     session = 'auth_sesssion',
     social = 'auth_social_credential',
     user = 'auth_user',

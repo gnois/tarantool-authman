@@ -20,6 +20,9 @@ return {
         password_token = {
             name = 'auth_password_token',
         },
+        activation_token = {
+            name = 'auth_activation_token',
+        },
         session = {
             name = 'auth_sesssion',
         },

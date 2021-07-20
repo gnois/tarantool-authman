@@ -6,6 +6,7 @@ function db.configurate(config)
 
     local user = require('authman.model.user').model(config)
     local password = require('authman.model.password').model(config)
+    local activation_token = require('authman.model.activation_token').model(config)
     local password_token = require('authman.model.password_token').model(config)
     local social = require('authman.model.social').model(config)
     local session = require('authman.model.session').model(config)
@@ -29,6 +30,15 @@ function db.configurate(config)
             type = 'tree',
             unique = false,
             parts = {user.EMAIL, 'string', user.TYPE, 'unsigned'},
+            if_not_exists = true
+        })
+
+        local activation_token_space = box.schema.space.create(activation_token.SPACE_NAME, {
+            if_not_exists = true
+        })
+        activation_token_space:create_index(activation_token.PRIMARY_INDEX, {
+            type = 'hash',
+            parts = {activation_token.USER_ID, 'string'},
             if_not_exists = true
         })
 
