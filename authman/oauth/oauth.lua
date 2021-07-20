@@ -6,6 +6,7 @@ return function(config)
     local api = {}
 
     local user = require('authman.model.user').model(config)
+    local activation_token = require('authman.model.activation_token').model(config)
     local oauth_app = require('authman.model.oauth.app').model(config)
     local oauth_consumer = require('authman.model.oauth.consumer').model(config)
     local oauth_code = require('authman.model.oauth.code').model(config)
@@ -20,8 +21,8 @@ return function(config)
             return response.error(error.USER_NOT_FOUND)
         end
 
-        if not user_tuple[user.IS_ACTIVE] then
-            return response.error(error.USER_NOT_ACTIVE)
+        if activation_token.get_by_user_id(user_tuple[user.ID]) then
+            return response.error(error.USER_NOT_VERIFIED)
         end
 
         if not validator.not_empty_string(app_name)

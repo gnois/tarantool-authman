@@ -40,7 +40,7 @@ function auth.api(config)
 
         local user_tuple = user.get_by_email(email, user.COMMON_TYPE)
         if user_tuple ~= nil then
-            if user_tuple[user.TYPE] == user.COMMON_TYPE and not activation_token.get_by_user_id(user_tuple[USER_ID]) then
+            if user_tuple[user.TYPE] == user.COMMON_TYPE and not activation_token.get_by_user_id(user_tuple[user.ID]) then
                 return response.error(error.USER_ALREADY_EXISTS)
             else
                 local code = activation_token.generate(user_tuple[user.ID])
@@ -86,7 +86,7 @@ function auth.api(config)
             return response.error(error.USER_ALREADY_VERIFIED)
         end
 
-        if activation_token.is_valid(code, user_id) then
+        if not activation_token.is_valid(code, user_id) then
             return response.error(error.WRONG_ACTIVATION_CODE)
         end
 
@@ -108,6 +108,7 @@ function auth.api(config)
             [user.ID] = user_id,
             [user.REGISTRATION_TS] = utils.now(),
         })
+        activation_token.delete(user_id)
 
         return response.ok(user.serialize(user_tuple))
     end
@@ -211,10 +212,6 @@ function auth.api(config)
         local user_tuple = user.get_by_id(session_tuple[session.USER_ID])
         if user_tuple == nil then
             return response.error(error.USER_NOT_FOUND)
-        end
-
-        if not password.get_by_user_id(user_tuple[user.ID]) then
-            return response.error(error.USER_NOT_ACTIVE)
         end
 
         local session_data = session.decode(encoded_session_data)
@@ -378,7 +375,6 @@ function auth.api(config)
 
         local now = utils.now()
         user_tuple[user.EMAIL] = utils.lower(user_tuple[user.EMAIL])
-        user_tuple[user.IS_VERIFIED] = true
         user_tuple[user.TYPE] = user.SOCIAL_TYPE
         user_tuple[user.SESSION_UPDATE_TS] = now
 
